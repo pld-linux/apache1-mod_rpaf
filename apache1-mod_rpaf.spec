@@ -14,7 +14,7 @@ Source0:	http://stderr.net/apache/rpaf/download/mod_%{mod_name}-%{version}.tar.g
 Source1:	%{name}.conf
 URL:		http://stderr.net/apache/rpaf/
 BuildRequires:	apache1-devel >= 1.3.33-2
-BuildConflicts:	apache(ipv6)-devel
+BuildConflicts:	apache1(ipv6)-devel
 Requires:	apache1 >= 1.3.33-2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
