@@ -6,19 +6,16 @@ Summary:	Apache module: record traffic statistics into a database
 Summary(pl):	Modu³ Apache'a: zapisywanie statystyk ruchu do bazy danych
 Name:		apache1-mod_%{mod_name}
 Version:	0.5
-Release:	0.11
+Release:	0.12
 License:	Apache
 Group:		Networking/Daemons
 Source0:	http://stderr.net/apache/rpaf/download/mod_%{mod_name}-%{version}.tar.gz
 # Source0-md5:	471fb059d6223a394f319b7c8ab45c4d
 Source1:	%{name}.conf
 URL:		http://stderr.net/apache/rpaf/
-BuildRequires:	apache1-devel >= 1.3.33-1.1
+BuildRequires:	apache1-devel >= 1.3.33-2
 BuildConflicts:	apache(ipv6)-devel
-Requires(triggerpostun):	%{apxs}
-Requires(triggerpostun):	grep
-Requires(triggerpostun):	sed >= 4.0
-Requires:	apache1
+Requires:	apache1 >= 1.3.33-2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_pkglibdir	%(%{apxs} -q LIBEXECDIR 2>/dev/null)
@@ -63,22 +60,6 @@ if [ "$1" = "0" ]; then
 	if [ -f /var/lock/subsys/apache ]; then
 		/etc/rc.d/init.d/apache restart 1>&2
 	fi
-fi
-
-%triggerpostun -- %{name} < 0.5-0.11
-if grep -q '^Include conf\.d' /etc/apache/apache.conf; then
-	%{apxs} -e -A -n %{mod_name} %{_pkglibdir}/mod_%{mod_name}.so 1>&2
-	sed -i -e '
-		/^Include.*mod_%{mod_name}\.conf/d
-	' /etc/apache/apache.conf
-else
-	# they're still using old apache.conf
-	sed -i -e '
-		s,^Include.*mod_%{mod_name}\.conf,Include %{_sysconfdir}/conf.d/*_mod_%{mod_name}.conf,
-	' /etc/apache/apache.conf
-fi
-if [ -f /var/lock/subsys/apache ]; then
-	/etc/rc.d/init.d/apache restart 1>&2
 fi
 
 %files
