@@ -1,20 +1,23 @@
 # TODO
 # - compile fails when apache1 is compiled with ipv6
+
+%bcond_with	ipv6		# disable IPv6 support
+
 %define		mod_name	rpaf
 %define 	apxs		%{_sbindir}/apxs1
 Summary:	Apache module: record traffic statistics into a database
 Summary(pl):	Modu³ Apache'a: zapisywanie statystyk ruchu do bazy danych
 Name:		apache1-mod_%{mod_name}
 Version:	0.5
-Release:	0.13
+Release:	0.14
 License:	Apache
 Group:		Networking/Daemons
 Source0:	http://stderr.net/apache/rpaf/download/mod_%{mod_name}-%{version}.tar.gz
 # Source0-md5:	471fb059d6223a394f319b7c8ab45c4d
 Source1:	%{name}.conf
 URL:		http://stderr.net/apache/rpaf/
-BuildRequires:	apache1-devel >= 1.3.33-2
-BuildConflicts:	apache1(ipv6)-devel
+%{?with_ipv6:BuildRequires:	apache1-devel >= 1.3.33-2}
+%{!?with_ipv6:BuildConflicts:	apache1(ipv6)-devel}
 Requires:	apache1 >= 1.3.33-2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
