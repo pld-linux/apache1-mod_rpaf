@@ -30,7 +30,7 @@ frontend Apache servers. It does excactly the opposite of
 mod_proxy_add_forward written by Ask Bjoern Hansen. It will also work
 with mod_proxy in Apache starting with release 1.3.25.
 
-%description -n en
+%description -l en
 rpaf is for backend Apache servers what mod_proxy_add_forward is for
 frontend Apache servers. It does excactly the opposite of
 mod_proxy_add_forward written by Ask Bjørn Hansen. It will also work
