@@ -6,6 +6,7 @@
 %define		mod_name	rpaf
 %define 	apxs		%{_sbindir}/apxs1
 Summary:	Reverse proxy add forward module for Apache
+Summary(pl):	Modu³ Apache'a dodaj±cy przekazywanie dla odwrotnych proxy
 Name:		apache1-mod_%{mod_name}
 Version:	0.5
 Release:	0.14
@@ -26,6 +27,12 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 %description
 rpaf is for backend Apache servers what mod_proxy_add_forward is for
 frontend Apache servers. It does excactly the opposite of
+mod_proxy_add_forward written by Ask Bjoern Hansen. It will also work
+with mod_proxy in Apache starting with release 1.3.25.
+
+%description -n en
+rpaf is for backend Apache servers what mod_proxy_add_forward is for
+frontend Apache servers. It does excactly the opposite of
 mod_proxy_add_forward written by Ask Bjørn Hansen. It will also work
 with mod_proxy in Apache starting with release 1.3.25.
 
@@ -33,7 +40,7 @@ with mod_proxy in Apache starting with release 1.3.25.
 rpaf jest dla backendowych serwerów Apache tym, czym
 mod_proxy_add_forward jest dla frontendowych. Wykonuje dok³adnie
 przeciwne operacje do mod_proxy_add_forward napisanego przez Aska
-Bjorna Hansena. Bêdzie tak¿e dzia³aæ z mod_proxy w Apache'u pocz±wszy
+Bjoerna Hansena. Bêdzie tak¿e dzia³aæ z mod_proxy w Apache'u pocz±wszy
 od wersji 1.3.25.
 
 %prep
