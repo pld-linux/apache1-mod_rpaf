@@ -5,8 +5,7 @@
 
 %define		mod_name	rpaf
 %define 	apxs		%{_sbindir}/apxs1
-Summary:	Apache module: record traffic statistics into a database
-Summary(pl):	Modu³ Apache'a: zapisywanie statystyk ruchu do bazy danych
+Summary:	Reverse proxy add forward module for Apache
 Name:		apache1-mod_%{mod_name}
 Version:	0.5
 Release:	0.14
@@ -68,5 +67,5 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc README CHANGES test.pl
-%attr(640,root,root) %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/conf.d/*_mod_%{mod_name}.conf
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*_mod_%{mod_name}.conf
 %attr(755,root,root) %{_pkglibdir}/*
