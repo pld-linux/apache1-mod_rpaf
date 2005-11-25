@@ -1,15 +1,15 @@
 # TODO
-# - compile fails when apache1 is compiled with ipv6
-
+# - need ipv6 support
+#
 %bcond_with	ipv6		# disable IPv6 support
-
+#
 %define		mod_name	rpaf
 %define 	apxs		%{_sbindir}/apxs1
 Summary:	Reverse proxy add forward module for Apache
 Summary(pl):	Modu³ Apache'a dodaj±cy przekazywanie dla odwrotnych proxy
 Name:		apache1-mod_%{mod_name}
 Version:	0.5
-Release:	0.14
+Release:	0.15
 License:	Apache
 Group:		Networking/Daemons
 Source0:	http://stderr.net/apache/rpaf/download/mod_%{mod_name}-%{version}.tar.gz
@@ -18,6 +18,7 @@ Source1:	%{name}.conf
 URL:		http://stderr.net/apache/rpaf/
 BuildRequires:	apache1-devel >= 1.3.33-2
 %{!?with_ipv6:BuildConflicts:	apache1(ipv6)-devel}
+%{!?with_ipv6:Conflicts:	apache1(ipv6)}
 Requires:	apache1 >= 1.3.33-2
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
