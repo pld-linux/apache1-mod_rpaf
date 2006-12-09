@@ -8,7 +8,7 @@ Summary:	Reverse proxy add forward module for Apache
 Summary(pl):	Modu³ Apache'a dodaj±cy przekazywanie dla odwrotnych proxy
 Name:		apache1-mod_%{mod_name}
 Version:	0.5
-Release:	1
+Release:	2
 License:	Apache
 Group:		Networking/Daemons
 Source0:	http://stderr.net/apache/rpaf/download/mod_%{mod_name}-%{version}.tar.gz
@@ -17,6 +17,7 @@ Source1:	%{name}.conf
 Patch0:		%{name}-ipv6.patch
 URL:		http://stderr.net/apache/rpaf/
 %{?with_ipv6:BuildRequires:	apache1(ipv6)-devel}
+%{!?with_ipv6:BuildConflicts:	apache1(ipv6)-devel}
 BuildRequires:	apache1-devel >= 1.3.33-2
 BuildRequires:	rpmbuild(macros) >= 1.268
 Requires:	apache1 >= 1.3.33-2
