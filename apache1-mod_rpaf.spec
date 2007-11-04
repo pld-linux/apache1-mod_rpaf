@@ -19,7 +19,7 @@ Patch1:		mod_rpaf_degtine.patch
 Patch2:		%{name}_degtine.patch
 URL:		http://stderr.net/apache/rpaf/
 %{?with_ipv6:BuildRequires:	apache1(ipv6)-devel}
-BuildRequires:	apache1-devel >= 1.3.33-2
+BuildRequires:	apache1-devel >= 1.3.39
 BuildRequires:	rpmbuild(macros) >= 1.268
 %{!?with_ipv6:BuildConflicts:	apache1(ipv6)-devel}
 Requires:	apache1(EAPI)
