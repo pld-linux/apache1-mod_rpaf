@@ -11,7 +11,7 @@ Version:	0.6
 Release:	1
 License:	Apache
 Group:		Networking/Daemons
-Source0:	http://stderr.net/apache/rpaf/download/mod_rpaf-0.6.tar.gz
+Source0:	http://stderr.net/apache/rpaf/download/mod_rpaf-%{version}.tar.gz
 # Source0-md5:	ba2b89274e1dd4c0f96f8d034fa305b1
 Source1:	%{name}.conf
 Patch0:		mod_rpaf_degtine.patch
