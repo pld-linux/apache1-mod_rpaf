@@ -7,16 +7,14 @@
 Summary:	Reverse proxy add forward module for Apache
 Summary(pl.UTF-8):	Moduł Apache'a dodający przekazywanie dla odwrotnych proxy
 Name:		apache1-mod_%{mod_name}
-Version:	0.5
-Release:	9
+Version:	0.6
+Release:	1
 License:	Apache
 Group:		Networking/Daemons
-Source0:	http://stderr.net/apache/rpaf/download/mod_%{mod_name}-%{version}.tar.gz
-# Source0-md5:	471fb059d6223a394f319b7c8ab45c4d
+Source0:	http://stderr.net/apache/rpaf/download/mod_rpaf-0.6.tar.gz
+# Source0-md5:	ba2b89274e1dd4c0f96f8d034fa305b1
 Source1:	%{name}.conf
-Patch0:		%{name}-ipv6.patch
-Patch1:		mod_rpaf_degtine.patch
-Patch2:		%{name}_degtine.patch
+Patch0:		mod_rpaf_degtine.patch
 URL:		http://stderr.net/apache/rpaf/
 %{?with_ipv6:BuildRequires:	apache1(ipv6)-devel}
 BuildRequires:	apache1-devel >= 1.3.39
@@ -52,12 +50,7 @@ od wersji 1.3.25.
 
 %prep
 %setup -q -n mod_%{mod_name}-%{version}
-%if %{with ipv6}
 %patch0 -p1
-%patch2 -p1
-%else
-%patch1 -p1
-%endif
 
 %build
 %{apxs} -c mod_%{mod_name}.c -o mod_%{mod_name}.so
@@ -82,6 +75,6 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc README CHANGES test.pl
+%doc README CHANGES
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/*_mod_%{mod_name}.conf
 %attr(755,root,root) %{_pkglibdir}/*
