@@ -1,29 +1,7 @@
---- mod_rpaf-0.5/mod_rpaf.c	2004-03-17 17:47:30.000000000 +0200
-+++ mod_rpaf-0.5.ipv6/mod_rpaf.c	2006-01-05 18:18:09.000000000 +0200
-@@ -148,7 +148,18 @@
-                     ++fwdvalue;
-             }
-             r->connection->remote_ip = ap_pstrdup(r->connection->pool, ((char **)arr->elts)[((arr->nelts)-1)]);
--            r->connection->remote_addr.sin_addr.s_addr = inet_addr(r->connection->remote_ip);
-+			switch (r->connection->remote_addr.ss_family) {
-+			case AF_INET:
-+				inet_pton(AF_INET, r->connection->remote_ip, &((struct sockaddr_in*)&r->connection->remote_addr)->sin_addr.s_addr);
-+				break;
-+			case AF_INET6:
-+				inet_pton(AF_INET6, r->connection->remote_ip, ((struct sockaddr_in6*)&r->connection->remote_addr)->sin6_addr.s6_addr);
-+				break;
-+			default:
-+				ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, r, "Apache doesn't support this address family");
-+				break;
-+			}
-+
-             if (cfg->sethostname) {
-                 const char *hostvalue;
-                 if (hostvalue = ap_table_get(r->headers_in, "X-Forwarded-Host")) {
---- mod_rpaf-0.6/mod_rpaf-2.0.c~	2008-01-14 12:27:30.000000000 +0200
-+++ mod_rpaf-0.6/mod_rpaf-2.0.c	2008-01-14 12:28:18.413347347 +0200
-@@ -130,6 +130,16 @@
-     return 0;
+--- mod_rpaf-0.6/mod_rpaf-2.0.c	2008-01-01 05:05:40.000000000 +0200
++++ mod_rpaf-0.6-degtine/mod_rpaf-2.0.c	2008-01-14 12:47:44.248571877 +0200
+@@ -152,6 +152,16 @@
+     return APR_SUCCESS;
  }
  
 +static char* last_not_in_array(apr_array_header_t *forwarded_for,
@@ -39,7 +17,7 @@
  static int change_remote_ip(request_rec *r) {
      const char *fwdvalue;
      char *val;
-@@ -193,7 +193,7 @@
+@@ -183,7 +193,7 @@
              rcr->old_ip = apr_pstrdup(r->connection->pool, r->connection->remote_ip);
              rcr->r = r;
              apr_pool_cleanup_register(r->pool, (void *)rcr, rpaf_cleanup, apr_pool_cleanup_null);
@@ -48,48 +26,9 @@
              r->connection->remote_addr->sa.sin.sin_addr.s_addr = apr_inet_addr(r->connection->remote_ip);
              if (cfg->sethostname) {
                  const char *hostvalue;
---- mod_rpaf-0.6/mod_rpaf.c~	2008-01-14 12:28:40.000000000 +0200
-+++ mod_rpaf-0.6/mod_rpaf.c	2008-01-14 12:30:47.021926815 +0200
-@@ -130,6 +130,16 @@
-     return 0;
- }
- 
-+static char* last_not_in_array(array_header *forwarded_for,
-+			       array_header *proxy_ips) {
-+    int i;
-+    for (i = (forwarded_for->nelts)-1; i > 0; i--) {
-+	if (!is_in_array(((char **)forwarded_for->elts)[i], proxy_ips))
-+	    break;
-+    }
-+    return ((char **)forwarded_for->elts)[i];
-+}
-+
- static int change_remote_ip(request_rec *r) {
-     const char *fwdvalue;
-     char *val;
-@@ -192,18 +192,7 @@
-             rcr->old_ip = ap_pstrdup(r->connection->pool, r->connection->remote_ip);
-             rcr->r = r;
-             ap_register_cleanup(r->pool, (void *)rcr, rpaf_cleanup, ap_null_cleanup);
--            r->connection->remote_ip = ap_pstrdup(r->connection->pool, ((char **)arr->elts)[((arr->nelts)-1)]);
--			switch (r->connection->remote_addr.ss_family) {
--			case AF_INET:
--				inet_pton(AF_INET, r->connection->remote_ip, &((struct sockaddr_in*)&r->connection->remote_addr)->sin_addr.s_addr);
--				break;
--			case AF_INET6:
--				inet_pton(AF_INET6, r->connection->remote_ip, ((struct sockaddr_in6*)&r->connection->remote_addr)->sin6_addr.s6_addr);
--				break;
--			default:
--				ap_log_rerror(APLOG_MARK, APLOG_DEBUG|APLOG_NOERRNO, r, "Apache doesn't support this address family");
--				break;
--			}
-+            r->connection->remote_ip = ap_pstrdup(r->connection->pool, last_not_in_array(arr, cfg->proxy_ips));
- 
-             if (cfg->sethostname) {
-                 const char *hostvalue;
---- mod_rpaf-0.6/mod_rpaf.c~	2008-01-14 12:31:19.000000000 +0200
-+++ mod_rpaf-0.6/mod_rpaf.c	2008-01-14 12:35:56.507787818 +0200
-@@ -148,7 +148,15 @@
+--- mod_rpaf-0.6/mod_rpaf.c	2008-01-01 05:03:15.000000000 +0200
++++ mod_rpaf-0.6-degtine/mod_rpaf.c	2008-01-14 12:47:44.248571877 +0200
+@@ -148,7 +148,25 @@
  static void rpaf_cleanup(void *data) {
      rpaf_cleanup_rec *rcr = (rpaf_cleanup_rec *)data;
      rcr->r->connection->remote_ip   = ap_pstrdup(rcr->r->connection->pool, rcr->old_ip);
@@ -102,15 +41,26 @@
 +#else
      rcr->r->connection->remote_addr.sin_addr.s_addr = inet_addr(rcr->r->connection->remote_ip);
 +#endif
++}
++
++static char* last_not_in_array(array_header *forwarded_for,
++			       array_header *proxy_ips) {
++    int i;
++    for (i = (forwarded_for->nelts)-1; i > 0; i--) {
++	if (!is_in_array(((char **)forwarded_for->elts)[i], proxy_ips))
++	    break;
++    }
++    return ((char **)forwarded_for->elts)[i];
  }
  
- static char* last_not_in_array(array_header *forwarded_for,
---- mod_rpaf-0.6/mod_rpaf.c~	2008-01-14 12:39:58.000000000 +0200
-+++ mod_rpaf-0.6/mod_rpaf.c	2008-01-14 12:42:16.393702934 +0200
-@@ -201,6 +201,15 @@
+ static int change_remote_ip(request_rec *r) {
+@@ -182,8 +200,17 @@
+             rcr->old_ip = ap_pstrdup(r->connection->pool, r->connection->remote_ip);
              rcr->r = r;
              ap_register_cleanup(r->pool, (void *)rcr, rpaf_cleanup, ap_null_cleanup);
-             r->connection->remote_ip = ap_pstrdup(r->connection->pool, last_not_in_array(arr, cfg->proxy_ips));
+-            r->connection->remote_ip = ap_pstrdup(r->connection->pool, ((char **)arr->elts)[((arr->nelts)-1)]);
+-            r->connection->remote_addr.sin_addr.s_addr = inet_addr(r->connection->remote_ip);
++            r->connection->remote_ip = ap_pstrdup(r->connection->pool, last_not_in_array(arr, cfg->proxy_ips));
 +#ifdef INET6
 +			switch (r->connection->remote_addr.ss_family) {
 +			case AF_INET:
@@ -120,6 +70,7 @@
 +#else
 +			r->connection->remote_addr.sin_addr.s_addr = inet_addr(r->connection->remote_ip);
 +#endif
- 
++
              if (cfg->sethostname) {
                  const char *hostvalue;
+                 if (hostvalue = ap_table_get(r->headers_in, "X-Forwarded-Host")) {
