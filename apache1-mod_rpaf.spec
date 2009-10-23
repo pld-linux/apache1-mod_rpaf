@@ -49,7 +49,8 @@ Bjoerna Hansena. Będzie także działać z mod_proxy w Apache'u począwszy
 od wersji 1.3.25.
 
 %prep
-%setup -q -n mod_%{mod_name}-%{version}
+%setup -qc
+mv mod_%{mod_name}-%{version}/* .
 %patch0 -p1
 
 %build
