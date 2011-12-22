@@ -1,29 +1,43 @@
 #
 # Conditional build:
 %bcond_without	ipv6		# disable IPv6 support
-#
+%bcond_without	tests	# do not perform "make test"
+
 %define		mod_name	rpaf
 %define 	apxs		%{_sbindir}/apxs1
 Summary:	Reverse proxy add forward module for Apache
 Summary(pl.UTF-8):	Moduł Apache'a dodający przekazywanie dla odwrotnych proxy
 Name:		apache1-mod_%{mod_name}
 Version:	0.6
-Release:	1
+Release:	2
 License:	Apache
 Group:		Networking/Daemons
 Source0:	http://stderr.net/apache/rpaf/download/mod_rpaf-%{version}.tar.gz
 # Source0-md5:	ba2b89274e1dd4c0f96f8d034fa305b1
 Source1:	%{name}.conf
 Patch0:		mod_rpaf_degtine.patch
+Patch1:		tests.patch
 URL:		http://stderr.net/apache/rpaf/
-%{?with_ipv6:BuildRequires:	apache1(ipv6)-devel}
 BuildRequires:	apache1-devel >= 1.3.39
 BuildRequires:	rpmbuild(macros) >= 1.268
-%{!?with_ipv6:BuildConflicts:	apache1(ipv6)-devel}
 Requires:	apache1(EAPI)
-%{?with_ipv6:Requires:	apache1(ipv6)}
 Provides:	apache(mod_rpaf)
-%{!?with_ipv6:Conflicts:	apache1(ipv6)}
+%if %{with ipv6}
+BuildRequires:	apache1(ipv6)-devel
+Requires:	apache1(ipv6)
+%else
+BuildConflicts:	apache1(ipv6)-devel
+Conflicts:	apache1(ipv6)
+%endif
+%if %{with tests}
+BuildRequires:	apache1-base
+BuildRequires:	apache1-mod_alias
+BuildRequires:	apache1-mod_cgi
+BuildRequires:	apache1-mod_log_config
+BuildRequires:	apache1-mod_mime
+BuildRequires:	apache1-mod_rewrite
+BuildRequires:	perl-libwww
+%endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_pkglibdir	%(%{apxs} -q LIBEXECDIR 2>/dev/null)
@@ -52,16 +66,22 @@ od wersji 1.3.25.
 %setup -qc
 mv mod_%{mod_name}-%{version}/* .
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{apxs} -c mod_%{mod_name}.c -o mod_%{mod_name}.so
+
+%if %{with tests}
+ln -sf %{_libdir}/apache1 modules
+%{__make} test
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_pkglibdir},%{_sysconfdir}/conf.d}
 
-install mod_%{mod_name}.so $RPM_BUILD_ROOT%{_pkglibdir}
-install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/99_mod_%{mod_name}.conf
+install -p mod_%{mod_name}.so $RPM_BUILD_ROOT%{_pkglibdir}
+cp -p %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/99_mod_%{mod_name}.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
