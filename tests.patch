@@ -39,7 +39,7 @@
 -ServerName 127.0.0.1
 +
 +#Port 2500
-+#ServerName 127.0.0.1
++ServerName 127.0.0.1
 +Listen 127.0.0.1 2500
 +
  #ServerRoot @@DIR@@
