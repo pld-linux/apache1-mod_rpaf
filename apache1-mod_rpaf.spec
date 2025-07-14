@@ -65,8 +65,8 @@ od wersji 1.3.25.
 %prep
 %setup -qc
 mv mod_%{mod_name}-%{version}/* .
-%patch0 -p1
-%patch1 -p1
+%patch -P0 -p1
+%patch -P1 -p1
 
 %build
 %{apxs} -c mod_%{mod_name}.c -o mod_%{mod_name}.so
